@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import OpenAI from "openai";
 
 dotenv.config();
 
@@ -8,36 +9,39 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// TEST ROUTE
+app.get("/", (req, res) => {
+  res.send("Inkpen AI backend is live");
+});
+
+// CHAT ROUTE
 app.post("/chat", async (req, res) => {
-  const { message } = req.body;
-
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: "You are iNKPEN AI. Direct." },
-          { role: "user", content: message }
-        ]
-      })
-    });
+    const { message } = req.body;
 
-    const data = await response.json();
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are Inkpen AI, a sharp, confident assistant." },
+        { role: "user", content: message },
+      ],
+    });
 
     res.json({
-      reply: data.choices[0].message.content
+      reply: response.choices[0].message.content,
     });
-
-  } catch (err) {
-    res.json({ reply: "AI error." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Something broke" });
   }
 });
 
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
 });
