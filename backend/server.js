@@ -13,12 +13,10 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// TEST ROUTE
 app.get("/", (req, res) => {
   res.send("Inkpen AI backend is live");
 });
 
-// CHAT ROUTE
 app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
@@ -26,7 +24,7 @@ app.post("/chat", async (req, res) => {
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "You are Inkpen AI, a sharp, confident assistant." },
+        { role: "system", content: "You are Inkpen AI." },
         { role: "user", content: message },
       ],
     });
@@ -36,7 +34,7 @@ app.post("/chat", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Something broke" });
+    res.status(500).json({ error: "Error" });
   }
 });
 
