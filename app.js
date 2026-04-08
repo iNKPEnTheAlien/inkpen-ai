@@ -16,22 +16,27 @@ async function send() {
   add("> " + text);
   input.value = "";
 
-  add("Thinking...");
+  const thinking = document.createElement("div");
+  thinking.textContent = "Thinking...";
+  log.appendChild(thinking);
 
   try {
-    const res = await fetch("http://localhost:3000/chat", {
+    const res = await fetch("https://inkpen-backend.onrender.com/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ message: text })
+      body: JSON.stringify({ prompt: text })
     });
 
     const data = await res.json();
 
-    add(data.reply);
+    thinking.remove();
+    add(data.reply || "No response.");
 
-  } catch (e) {
-    add("Server not connected.");
+  } catch (err) {
+    thinking.remove();
+    add("ERROR: Backend not responding.");
   }
 }
+
